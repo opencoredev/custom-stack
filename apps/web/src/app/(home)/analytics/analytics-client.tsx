@@ -156,7 +156,54 @@ function buildFromPrecomputed(
   };
 }
 
-export function AnalyticsClient({
+const emptyData = {
+  lastUpdated: null,
+  totalProjects: 0,
+  avgProjectsPerDay: 0,
+  timeSeries: [],
+  monthlyTimeSeries: [],
+  hourlyDistribution: [],
+  platformDistribution: [],
+  packageManagerDistribution: [],
+  backendDistribution: [],
+  databaseDistribution: [],
+  ormDistribution: [],
+  dbSetupDistribution: [],
+  apiDistribution: [],
+  frontendDistribution: [],
+  authDistribution: [],
+  runtimeDistribution: [],
+  addonsDistribution: [],
+  examplesDistribution: [],
+  gitDistribution: [],
+  installDistribution: [],
+  webDeployDistribution: [],
+  serverDeployDistribution: [],
+  paymentsDistribution: [],
+  nodeVersionDistribution: [],
+  cliVersionDistribution: [],
+  popularStackCombinations: [],
+  databaseORMCombinations: [],
+  summary: {
+    mostPopularFrontend: "none",
+    mostPopularBackend: "none",
+    mostPopularDatabase: "none",
+    mostPopularORM: "none",
+    mostPopularAPI: "none",
+    mostPopularAuth: "none",
+    mostPopularPackageManager: "none",
+    mostPopularRuntime: "none",
+  },
+} satisfies AggregatedAnalyticsData;
+
+const legacy = {
+  total: 55434,
+  avgPerDay: 326.1,
+  lastUpdatedIso: "2025-11-13T10:10:00.000Z",
+  source: "PostHog (legacy, pre-Convex)",
+};
+
+function AnalyticsClientLoaded({
   preloadedStats,
   preloadedDailyStats,
 }: {
@@ -167,55 +214,24 @@ export function AnalyticsClient({
   const dailyStats = usePreloadedQuery(preloadedDailyStats);
   const connectionState = useConvexConnectionState();
   const connectionStatus = getConnectionStatus(connectionState);
-
-  const data = stats
-    ? buildFromPrecomputed(stats, dailyStats)
-    : {
-        lastUpdated: null,
-        totalProjects: 0,
-        avgProjectsPerDay: 0,
-        timeSeries: [],
-        monthlyTimeSeries: [],
-        hourlyDistribution: [],
-        platformDistribution: [],
-        packageManagerDistribution: [],
-        backendDistribution: [],
-        databaseDistribution: [],
-        ormDistribution: [],
-        dbSetupDistribution: [],
-        apiDistribution: [],
-        frontendDistribution: [],
-        authDistribution: [],
-        runtimeDistribution: [],
-        addonsDistribution: [],
-        examplesDistribution: [],
-        gitDistribution: [],
-        installDistribution: [],
-        webDeployDistribution: [],
-        serverDeployDistribution: [],
-        paymentsDistribution: [],
-        nodeVersionDistribution: [],
-        cliVersionDistribution: [],
-        popularStackCombinations: [],
-        databaseORMCombinations: [],
-        summary: {
-          mostPopularFrontend: "none",
-          mostPopularBackend: "none",
-          mostPopularDatabase: "none",
-          mostPopularORM: "none",
-          mostPopularAPI: "none",
-          mostPopularAuth: "none",
-          mostPopularPackageManager: "none",
-          mostPopularRuntime: "none",
-        },
-      };
-
-  const legacy = {
-    total: 55434,
-    avgPerDay: 326.1,
-    lastUpdatedIso: "2025-11-13T10:10:00.000Z",
-    source: "PostHog (legacy, pre-Convex)",
-  };
-
+  const data = stats ? buildFromPrecomputed(stats, dailyStats) : emptyData;
   return <AnalyticsPage data={data} legacy={legacy} connectionStatus={connectionStatus} />;
+}
+
+export function AnalyticsClient({
+  preloadedStats,
+  preloadedDailyStats,
+}: {
+  preloadedStats: Preloaded<typeof api.analytics.getStats> | null;
+  preloadedDailyStats: Preloaded<typeof api.analytics.getDailyStats> | null;
+}) {
+  if (!preloadedStats || !preloadedDailyStats) {
+    return <AnalyticsPage data={emptyData} legacy={legacy} connectionStatus="offline" />;
+  }
+  return (
+    <AnalyticsClientLoaded
+      preloadedStats={preloadedStats}
+      preloadedDailyStats={preloadedDailyStats}
+    />
+  );
 }

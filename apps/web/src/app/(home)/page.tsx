@@ -14,13 +14,20 @@ import Testimonials from "./_components/testimonials";
 
 export default async function HomePage() {
   const sponsorsData = await fetchSponsors();
-  const fetchedTweets = await fetchQuery(api.testimonials.getTweets);
-  const fetchedVideos = await fetchQuery(api.testimonials.getVideos);
-  const videos = fetchedVideos.map((v) => ({
-    embedId: v.embedId,
-    title: v.title,
-  }));
-  const tweets = fetchedTweets.map((t) => ({ tweetId: t.tweetId }));
+
+  let tweets: { tweetId: string }[] = [];
+  let videos: { embedId: string; title: string }[] = [];
+
+  if (process.env.CONVEX_URL || process.env.NEXT_PUBLIC_CONVEX_URL) {
+    try {
+      const [fetchedTweets, fetchedVideos] = await Promise.all([
+        fetchQuery(api.testimonials.getTweets),
+        fetchQuery(api.testimonials.getVideos),
+      ]);
+      tweets = fetchedTweets.map((t) => ({ tweetId: t.tweetId }));
+      videos = fetchedVideos.map((v) => ({ embedId: v.embedId, title: v.title }));
+    } catch {}
+  }
 
   return (
     <main className="container mx-auto min-h-svh">

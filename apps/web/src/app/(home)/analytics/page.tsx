@@ -30,10 +30,18 @@ export const metadata: Metadata = {
 };
 
 export default async function Analytics() {
-  const [preloadedStats, preloadedDailyStats] = await Promise.all([
-    preloadQuery(api.analytics.getStats, {}),
-    preloadQuery(api.analytics.getDailyStats, {}),
-  ]);
+  let preloadedStats = null;
+  let preloadedDailyStats = null;
+
+  if (process.env.CONVEX_URL || process.env.NEXT_PUBLIC_CONVEX_URL) {
+    try {
+      [preloadedStats, preloadedDailyStats] = await Promise.all([
+        preloadQuery(api.analytics.getStats, {}),
+        preloadQuery(api.analytics.getDailyStats, {}),
+      ]);
+    } catch {}
+  }
+
   return (
     <AnalyticsClient preloadedStats={preloadedStats} preloadedDailyStats={preloadedDailyStats} />
   );

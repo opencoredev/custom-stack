@@ -32,6 +32,15 @@ export const metadata: Metadata = {
 };
 
 export default async function Showcase() {
-  const showcaseProjects = await fetchQuery(api.showcase.getShowcaseProjects);
+  let showcaseProjects: Awaited<
+    ReturnType<typeof fetchQuery<typeof api.showcase.getShowcaseProjects>>
+  > = [];
+
+  if (process.env.CONVEX_URL || process.env.NEXT_PUBLIC_CONVEX_URL) {
+    try {
+      showcaseProjects = await fetchQuery(api.showcase.getShowcaseProjects);
+    } catch {}
+  }
+
   return <ShowcasePage showcaseProjects={showcaseProjects} />;
 }
