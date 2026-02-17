@@ -48,6 +48,7 @@ export const AddonsSchema = z
     "opentui",
     "wxt",
     "skills",
+    "portless",
     "none",
   ])
   .describe("Additional addons");

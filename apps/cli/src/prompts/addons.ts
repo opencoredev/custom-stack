@@ -75,6 +75,10 @@ function getAddonDisplay(addon: Addons): { label: string; hint: string } {
       label = "MCP";
       hint = "Install MCP servers (docs, databases, SaaS) via add-mcp";
       break;
+    case "portless":
+      label = "Portless";
+      hint = "Named .localhost URLs for each dev server (no port numbers)";
+      break;
     default:
       label = addon;
       hint = `Add ${addon}`;
@@ -84,7 +88,7 @@ function getAddonDisplay(addon: Addons): { label: string; hint: string } {
 }
 
 const ADDON_GROUPS = {
-  Tooling: ["turborepo", "biome", "oxlint", "ultracite", "husky", "lefthook"],
+  Tooling: ["turborepo", "biome", "oxlint", "ultracite", "husky", "lefthook", "portless"],
   Documentation: ["starlight", "fumadocs"],
   Extensions: ["pwa", "tauri", "opentui", "wxt"],
   AI: ["ruler", "skills", "mcp"],

@@ -58,4 +58,35 @@ export function processAddonsDeps(vfs: VirtualFileSystem, config: ProjectConfig)
       }
     }
   }
+
+  if (config.addons.includes("portless")) {
+    const { projectName, backend, frontend } = config;
+
+    const hasWebFrontend = frontend.some(
+      (f) => !["native-bare", "native-uniwind", "native-unistyles"].includes(f),
+    );
+    if (hasWebFrontend) {
+      const webPkgPath = "apps/web/package.json";
+      if (vfs.exists(webPkgPath)) {
+        const webPkg = vfs.readJson<PackageJson>(webPkgPath);
+        if (webPkg?.scripts?.dev) {
+          webPkg.scripts.dev = `portless ${projectName}-web ${webPkg.scripts.dev}`;
+          vfs.writeJson(webPkgPath, webPkg);
+        }
+      }
+    }
+
+    if (backend !== "none" && backend !== "self" && backend !== "convex") {
+      const serverPkgPath = "apps/server/package.json";
+      if (vfs.exists(serverPkgPath)) {
+        const serverPkg = vfs.readJson<PackageJson>(serverPkgPath);
+        if (serverPkg?.scripts?.dev) {
+          serverPkg.scripts.dev = `portless ${projectName}-server ${serverPkg.scripts.dev}`;
+          vfs.writeJson(serverPkgPath, serverPkg);
+        }
+      }
+    }
+
+    addPackageDependency({ vfs, packagePath: "package.json", devDependencies: ["portless"] });
+  }
 }

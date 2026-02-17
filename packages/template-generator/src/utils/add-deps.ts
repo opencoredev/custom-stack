@@ -154,6 +154,8 @@ export const dependencyVersionMap = {
 
   "@polar-sh/better-auth": "^1.6.4",
   "@polar-sh/sdk": "^0.42.2",
+
+  portless: "^0.3.0",
 } as const;
 
 export type AvailableDependencies = keyof typeof dependencyVersionMap;

@@ -135,6 +135,30 @@ export async function setupAddons(config: ProjectConfig) {
   if (addons.includes("mcp")) {
     await runSetup(() => setupMcp(config));
   }
+
+  if (addons.includes("portless")) {
+    await runAddonStep("portless", () => setupPortless(config));
+  }
+}
+
+async function setupPortless(config: ProjectConfig): Promise<void> {
+  const { projectName, frontend, backend } = config;
+  const hasWebFrontend = frontend.some(
+    (f) => !["native-bare", "native-uniwind", "native-unistyles"].includes(f),
+  );
+  const hasServer = backend !== "none" && backend !== "self" && backend !== "convex";
+
+  const lines: string[] = [];
+  if (hasWebFrontend) lines.push(`  http://${projectName}-web.localhost:1355`);
+  if (hasServer) lines.push(`  http://${projectName}-server.localhost:1355`);
+
+  if (lines.length > 0) {
+    consola.info(
+      pc.cyan("Portless") +
+        pc.dim(" — dev servers will be available at:\n") +
+        lines.map((l) => pc.green(l)).join("\n"),
+    );
+  }
 }
 
 export async function setupBiome(projectDir: string) {

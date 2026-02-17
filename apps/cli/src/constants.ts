@@ -62,5 +62,6 @@ export const ADDON_COMPATIBILITY = {
   opentui: [],
   wxt: [],
   skills: [],
+  portless: [],
   none: [],
 } as const;
