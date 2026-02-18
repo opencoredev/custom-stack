@@ -54,7 +54,7 @@ jobs:
           jq --arg v "$VERSION" \
             '.version = $v | .name = "@opencoredev/better-t-stack-types" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
             package.json > tmp.json && mv tmp.json package.json
-          bun publish --no-git-checks
+          npm publish --no-git-checks
 
       - name: Build template-generator package
         run: cd packages/template-generator && bun run build
@@ -68,7 +68,7 @@ jobs:
           jq --arg v "$VERSION" \
             '.version = $v | .name = "@opencoredev/better-t-stack-template-generator" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
             package.json > tmp.json && mv tmp.json package.json
-          bun publish --no-git-checks
+          npm publish --no-git-checks
 
       - name: Build CLI
         run: cd apps/cli && bun run build
@@ -82,7 +82,7 @@ jobs:
           jq --arg v "$VERSION" \
             '.version = $v | .name = "@opencoredev/create-better-t-stack" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
             package.json > tmp.json && mv tmp.json package.json
-          bun publish --no-git-checks
+          npm publish --no-git-checks
 
       - name: Summary
         run: |
