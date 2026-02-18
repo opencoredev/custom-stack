@@ -47,12 +47,12 @@ jobs:
       - name: Build types package
         run: cd packages/types && bun run build
 
-      - name: Publish @opencoredev/better-t-stack-types
+      - name: Publish @opencoredev/custom-stack-types
         run: |
           VERSION="${{ steps.devver.outputs.version }}"
           cd packages/types
           jq --arg v "$VERSION" \
-            '.version = $v | .name = "@opencoredev/better-t-stack-types" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
+            '.version = $v | .name = "@opencoredev/custom-stack-types" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
             package.json > tmp.json && mv tmp.json package.json
           npm publish --no-git-checks
 
@@ -61,12 +61,12 @@ jobs:
         env:
           BTS_TELEMETRY: 1
 
-      - name: Publish @opencoredev/better-t-stack-template-generator
+      - name: Publish @opencoredev/custom-stack-template-generator
         run: |
           VERSION="${{ steps.devver.outputs.version }}"
           cd packages/template-generator
           jq --arg v "$VERSION" \
-            '.version = $v | .name = "@opencoredev/better-t-stack-template-generator" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
+            '.version = $v | .name = "@opencoredev/custom-stack-template-generator" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
             package.json > tmp.json && mv tmp.json package.json
           npm publish --no-git-checks
 
@@ -75,12 +75,12 @@ jobs:
         env:
           BTS_TELEMETRY: 1
 
-      - name: Publish @opencoredev/create-better-t-stack
+      - name: Publish @opencoredev/create-custom-stack
         run: |
           VERSION="${{ steps.devver.outputs.version }}"
           cd apps/cli
           jq --arg v "$VERSION" \
-            '.version = $v | .name = "@opencoredev/create-better-t-stack" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
+            '.version = $v | .name = "@opencoredev/create-custom-stack" | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
             package.json > tmp.json && mv tmp.json package.json
           npm publish --no-git-checks
 
@@ -97,5 +97,5 @@ jobs:
           echo "@opencoredev:registry=https://npm.pkg.github.com" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "# Run:" >> $GITHUB_STEP_SUMMARY
-          echo "bunx @opencoredev/create-better-t-stack@${VERSION} my-app --addons portless" >> $GITHUB_STEP_SUMMARY
+          echo "bunx @opencoredev/create-custom-stack@${VERSION} my-app --addons portless" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
