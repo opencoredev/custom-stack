@@ -611,6 +611,14 @@ export const TECH_OPTIONS: Record<
       color: "from-emerald-500 to-emerald-700",
       default: false,
     },
+    {
+      id: "portless",
+      name: "Portless",
+      description: "Named .localhost URLs for each dev server (no port numbers)",
+      icon: "",
+      color: "from-cyan-500 to-teal-600",
+      default: false,
+    },
   ],
   examples: [
     {

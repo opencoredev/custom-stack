@@ -121,6 +121,7 @@ export function generateStackCommand(stack: StackState) {
                 "wxt",
                 "skills",
                 "mcp",
+                "portless",
               ].includes(addon),
             )
             .join(" ") || "none"

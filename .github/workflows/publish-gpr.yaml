@@ -1,0 +1,109 @@
+name: Publish to GitHub Packages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: gpr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publish to GitHub Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Set dev version
+        id: devver
+        run: |
+          BASE=$(jq -r '.version' apps/cli/package.json)
+          SHA="${{ github.sha }}"
+          SHORT="${SHA:0:7}"
+          echo "version=${BASE}-dev.${SHORT}" >> $GITHUB_OUTPUT
+
+      - name: Build types package
+        run: cd packages/types && bun run build
+
+      - name: Publish @${{ github.repository_owner }}/better-t-stack-types to GitHub Packages
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          VERSION="${{ steps.devver.outputs.version }}"
+          cd packages/types
+          jq --arg v "$VERSION" --arg name "@${OWNER}/better-t-stack-types" \
+            '.version = $v | .name = $name | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
+            package.json > tmp.json && mv tmp.json package.json
+          bun publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
+
+      - name: Build template-generator package
+        run: cd packages/template-generator && bun run build
+        env:
+          BTS_TELEMETRY: 1
+
+      - name: Publish @${{ github.repository_owner }}/better-t-stack-template-generator to GitHub Packages
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          VERSION="${{ steps.devver.outputs.version }}"
+          cd packages/template-generator
+          jq --arg v "$VERSION" --arg name "@${OWNER}/better-t-stack-template-generator" \
+            '.version = $v | .name = $name | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
+            package.json > tmp.json && mv tmp.json package.json
+          bun publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
+
+      - name: Build CLI
+        run: cd apps/cli && bun run build
+        env:
+          BTS_TELEMETRY: 1
+
+      - name: Publish @${{ github.repository_owner }}/create-better-t-stack to GitHub Packages
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          VERSION="${{ steps.devver.outputs.version }}"
+          cd apps/cli
+          jq --arg v "$VERSION" --arg name "@${OWNER}/create-better-t-stack" \
+            '.version = $v | .name = $name | .publishConfig = {"registry": "https://npm.pkg.github.com", "access": "public"}' \
+            package.json > tmp.json && mv tmp.json package.json
+          bun publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
+
+      - name: Summary
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          VERSION="${{ steps.devver.outputs.version }}"
+          echo "## Published to GitHub Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Version: \`${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Install" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "# Add to .npmrc first:" >> $GITHUB_STEP_SUMMARY
+          echo "@${OWNER}:registry=https://npm.pkg.github.com" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Then run:" >> $GITHUB_STEP_SUMMARY
+          echo "bunx @${OWNER}/create-better-t-stack@${VERSION} my-app --addons portless" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
