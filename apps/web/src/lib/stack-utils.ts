@@ -49,9 +49,9 @@ export function generateStackSummary(stack: StackState) {
 
 export function generateStackCommand(stack: StackState) {
   const packageManagerCommands = {
-    npm: "npx create-better-t-stack@latest",
-    pnpm: "pnpm create better-t-stack@latest",
-    default: "bun create better-t-stack@latest",
+    npm: "npx @opencoredev/create-custom-stack@latest",
+    pnpm: "pnpm dlx @opencoredev/create-custom-stack@latest",
+    default: "bunx @opencoredev/create-custom-stack@latest",
   };
 
   const base =
